@@ -1,21 +1,55 @@
-import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import React, { useState } from 'react'
+import { StyleSheet, Text, View, FlatList } from 'react-native'
+import { Navbar } from './src/components/Navbar'
+import { MainScreen } from './src/screens/MainScreen'
+import { TodoScreen } from './src/screens/TodoScreen'
 
-export default
-class App extends React.Component {
-  render() {
-    return (
-      <MapView
-         style={{ flex: 1 }}
-         provider={PROVIDER_GOOGLE}
-         showsUserLocation
-         initialRegion={{
-         latitude: 37.78825,
-         longitude: -122.4324,
-         latitudeDelta: 0.0922,
-         longitudeDelta: 0.0421}}
-      />
-    );
+export default function App() {
+  const [todoId, setTodoId] = useState('2')
+  const [todos, setTodos] = useState([
+    { id: '1', title: 'Первая HeatMap' },
+    { id: '2', title: 'Вторая HeatMap' } 
+  ])
+
+  const addTodo = title => {
+    setTodos(prev => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        title
+      }
+    ])
   }
+
+  const removeTodo = id => {
+    setTodos(prev => prev.filter(todo => todo.id !== id))
+  }
+
+  let content = (
+    <MainScreen
+      todos={todos}
+      addTodo={addTodo}
+      removeTodo={removeTodo}
+      openTodo={setTodoId}
+    />
+  )
+
+  if (todoId) {
+    const selectedTodo = todos.find(todo => todo.id === todoId)
+    content = <TodoScreen goBack={() => setTodoId(null)} todo={selectedTodo} />
+  }
+
+  return (
+    <View>
+      <Navbar title='Happ Core HeatMaps' />
+      <View style={styles.container}>{content}</View>
+    </View>
+  )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 30,
+    paddingVertical: 20
+  }
+})
